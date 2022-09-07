@@ -124,8 +124,10 @@ class File():
         for h in range(height):
             data.append([])
             for w in range(width):
-                r, g, b = self.image.getpixel(tuple([w,h]))
-
+                result = self.image.getpixel(tuple([w,h]))
+                r = result[0]
+                g = result[1]
+                b = result[2]
                 pixel = Pixel(r, g, b)
                 if ( h< 1 and w<10):
                     print("raw pixel from file: ", pixel.serialize())
