@@ -140,19 +140,29 @@ class File():
         editedPixels = self.pixels.copy()
         for h in range(editedPixels.__len__()):
             for w in range(editedPixels[h].__len__()):
-                try:
+                if (len(encoded) > 0):
                     encodedR = encoded[0]
-                    encodedG = encoded[1]
-                    encodedB = encoded[2]
-
-                    encodedPixel = editedPixels[h][w].encode(encodedR, encodedG, encodedB).serialize()
-                    if ( h< 1 and w<10):
-                        print("encoded pixel", encodedPixel)
-
-                    encoded = encoded[3:]
-                    editedPixels[h][w] = encodedPixel
-                except IndexError:
+                    
+                else:
                     editedPixels[h][w] = editedPixels[h][w].encode(0,0,0).serialize()
+                    encoded = encoded[1:]
+                    continue
+
+                if (len(encoded) > 1):
+                    encodedG = encoded[1]
+                else:
+                    editedPixels[h][w] = editedPixels[h][w].encode(encodedR,0,0).serialize()
+                    encoded = encoded[2:]
+                    continue
+                if (len(encoded) > 2):
+                    encodedB = encoded[2]
+                    print(encoded)
+                else:
+                    editedPixels[h][w] = editedPixels[h][w].encode(encodedR,encodedG,0).serialize()
+                    encoded = ""
+                    continue
+                editedPixels[h][w] = editedPixels[h][w].encode(encodedR,encodedG,encodedB).serialize()
+                encoded = encoded[3:]
 
         print(editedPixels[0][:10])
         img = Image.fromarray(np.array(editedPixels, dtype=np.uint8))
