@@ -24,7 +24,13 @@ Started decoding
 Decoded text: This is a secret message
 ```
 
+# Can you decode this?
+
+![Python](python.png)
+
 # TODO
 - Add AES Encryption Method
 - Add verbose mode
 - Add GUI
+- Add Pixel (First or Last) designated for meta infos bitmap
+- Add option to check if image is encoded
