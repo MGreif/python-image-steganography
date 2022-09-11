@@ -1,10 +1,8 @@
-from base64 import decode
-from dataclasses import replace
 import os
+
 from pickletools import uint1
 import string
 import sys
-from typing import Tuple
 from PIL import Image
 import re
 import numpy as np
@@ -13,14 +11,14 @@ def main():
     try:
         filePath = sys.argv[1]
         action = sys.argv[2]
-        if (action == "encode"):
+        if action == "encode":
             text = sys.argv[3]
     except IndexError:
-        print("Usage: command <picture.jpeg> <decode|encode> [text]")
+        print("Usage: command <picture.png> <decode|encode> [text]")
         exit()
 
-    if (re.search(".+\.(jpeg|jpg|png)$", filePath, re.IGNORECASE) == None):
-        print("Must have png, jpg, or jpeg extension")
+    if re.search(".+\.(png)$", filePath, re.IGNORECASE) == None:
+        print("Must have png extension")
         exit()
 
     try:
@@ -29,12 +27,12 @@ def main():
         print("File {} not found".format(filePath))
         exit()
 
-    if (action == "encode"):
+    if action == "encode":
         file.encodeImage(text, "encoded")
-    elif (action == "decode"):
+    elif action == "decode":
         file.decodeImage()
     else:
-        print("Usage: command <picture.jpeg> <decode|encode> [text]")
+        print("Usage: command <picture.png> <decode|encode> [text]")
         exit()
 
 
@@ -46,32 +44,39 @@ def toggleBit(value, position: uint1, set: bool):
     return value
     
 def BinaryToDecimal(binary):
-        
-    binary1 = binary
     decimal, i, n = 0, 0, 0
-    while(binary != 0):
+    while binary != 0:
         dec = binary % 10
         decimal = decimal + dec * pow(2, i)
         binary = binary//10
         i += 1
-    return (decimal)
+    return decimal
 
  
 def binaryToText(binString):
-    str_data =''
-    for i in range(0, len(binString), 7):     
-        temp_data = int(binString[i:i + 7])
+    str =''
+
+    # Get binary string, split into full bytes and convert binary to decimal of each byte
+    for i in range(0, len(binString), 8):
+        temp_data = int(binString[i:i + 8])
 
         decimal_data = BinaryToDecimal(temp_data)
 
-        str_data = str_data + chr(decimal_data)
-    return str_data
+        str = str + chr(decimal_data)
+    return str
 
+
+def concatAndUnify(byte):
+    concatedByte = byte[2:]
+
+    # Unify each character to a full byte
+    while len(concatedByte) < 8:
+        concatedByte = "0{}".format(concatedByte)
+    return concatedByte
 
 def textToBinary(message: string):
-    spaceReplaced = message.replace(" ", "~") 
-    binArr = map(bin,bytearray(spaceReplaced, "utf8"))
-    binArr = list(map(lambda x : x[2:], binArr))
+    binArr = map(bin, bytearray(message, "utf8"))
+    binArr = list(map(concatAndUnify, binArr))
     binString = "".join(binArr)
     return binString
 
@@ -85,13 +90,13 @@ class Pixel():
         self.g = g
         self.b = b
 
-    def encode(self, first, second, third):
+    def setLastBits(self, first, second, third):
         self.r = toggleBit(self.r, 0, first)
         self.g = toggleBit(self.g, 0, second)
         self.b = toggleBit(self.b, 0, third)
         return self
     
-    def decode(self):
+    def getLastBits(self):
         rLastBit = bin(self.r)[-1]
         gLastBit = bin(self.g)[-1]
         bLastBit = bin(self.b)[-1]
@@ -129,8 +134,6 @@ class File():
                 g = result[1]
                 b = result[2]
                 pixel = Pixel(r, g, b)
-                if ( h< 1 and w<10):
-                    print("raw pixel from file: ", pixel.serialize())
                 data[h].append(pixel)
 
         self.pixels = data
@@ -138,55 +141,53 @@ class File():
 
     def encodeImage(self, message: string, fileName: string):
         encoded = textToBinary(message)
+        print("Started encoding")
         print("encoded text: {}".format(encoded))
         editedPixels = self.pixels.copy()
         for h in range(editedPixels.__len__()):
             for w in range(editedPixels[h].__len__()):
-                if (len(encoded) > 0):
+                if len(encoded) > 0:
                     encodedR = encoded[0]
                     
                 else:
-                    editedPixels[h][w] = editedPixels[h][w].encode(0,0,0).serialize()
+                    editedPixels[h][w] = editedPixels[h][w].setLastBits(0,0,0).serialize()
                     encoded = encoded[1:]
                     continue
 
-                if (len(encoded) > 1):
+                if len(encoded) > 1:
                     encodedG = encoded[1]
                 else:
-                    editedPixels[h][w] = editedPixels[h][w].encode(encodedR,0,0).serialize()
+                    editedPixels[h][w] = editedPixels[h][w].setLastBits(encodedR,0,0).serialize()
                     encoded = encoded[2:]
                     continue
-                if (len(encoded) > 2):
+                if len(encoded) > 2:
                     encodedB = encoded[2]
-                    print(encoded)
                 else:
-                    editedPixels[h][w] = editedPixels[h][w].encode(encodedR,encodedG,0).serialize()
+                    editedPixels[h][w] = editedPixels[h][w].setLastBits(encodedR,encodedG,0).serialize()
                     encoded = ""
                     continue
-                editedPixels[h][w] = editedPixels[h][w].encode(encodedR,encodedG,encodedB).serialize()
+                editedPixels[h][w] = editedPixels[h][w].setLastBits(encodedR,encodedG,encodedB).serialize()
                 encoded = encoded[3:]
 
-        print(editedPixels[0][:10])
         img = Image.fromarray(np.array(editedPixels, dtype=np.uint8))
         img.save("{}.png".format(fileName))
-        
+        print("Finished encoding")
+        print("Saved image in {0}/{1}.png".format(os.getcwd(), fileName))
+
     def decodeImage(self):
         binString = ""
         editedPixels = self.pixels.copy()
-        print('decode')
+        print('Started decoding')
         for h in range(editedPixels.__len__()):
             for w in range(editedPixels[h].__len__()):
-                binString = binString + editedPixels[h][w].decode()
-                if ( h< 1 and w<100):
-                    print("decoded pixel: ", editedPixels[h][w].decode())
-                
-        print("decoded bin: ", binString[:300])
-        decodedText = binaryToText(binString).replace("~", " ")
-        print("decoded text: ", decodedText), 
+                binString = binString + editedPixels[h][w].getLastBits()
+
+        decodedText = binaryToText(binString)
+        print("Decoded text:", decodedText),
 
 
+# left unused for future purposes
     def editImage(self, deltaR, deltaG, deltaB):
-
         editedPixels = self.pixels.copy()
         for h in range(editedPixels.__len__()):
             for w in range(editedPixels[h].__len__()):
@@ -196,8 +197,5 @@ class File():
                 editedPixels[h][w] = Pixel(r,g,b)
         return editedPixels
 
-
-
-        
 
 main()
