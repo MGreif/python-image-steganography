@@ -10,6 +10,8 @@ import numpy as np
 def main():
     try:
         filePath = sys.argv[1]
+        fileName = filePath.split(".")[0]
+        fileExtension = filePath.split(".")[-1]
         action = sys.argv[2]
         if action == "encode":
             text = sys.argv[3]
@@ -28,7 +30,7 @@ def main():
         exit()
 
     if action == "encode":
-        file.encodeImage(text, "encoded")
+        file.encodeImage(text, "{}.encoded".format(fileName))
     elif action == "decode":
         file.decodeImage()
     else:
