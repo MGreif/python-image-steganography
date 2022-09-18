@@ -11,11 +11,9 @@ class Cipher():
         
     def encrypt(self, message: str):
         encoded = self._pad(message).encode("latin-1")
-        print("padded", encoded)
         iv = b"SuperSecretIV123" #Random.new().read(AES.block_size)
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         digest = cipher.encrypt(encoded)
-        print("digest", digest)
         return (digest, iv)
 
     def decrypt2(self, digest):
@@ -25,7 +23,6 @@ class Cipher():
         return self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
 
     def decrypt(self, digest, iv):
-        print("digest", digest)
         newCipher = AES.new(self.key, AES.MODE_CBC, iv)
         decrypted = newCipher.decrypt(digest)
         return Cipher._unpad(decrypted.decode("latin-1"))

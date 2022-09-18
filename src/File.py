@@ -49,7 +49,9 @@ class File():
     filePath = None
     settings = Settings(False, False, False)
     image = None
+    message = ""
     pixels = []
+    iv = None
     def __init__(self, filePath: string) -> None:
         self.filePath = filePath
         self.image = Image.open(self.filePath)
@@ -77,19 +79,25 @@ class File():
         self.pixels = data
         return data
 
+    def setMessage(self, message: string):
+        self.message = message
+        return self
 
+    def encryptMessage(self, key):
+        print('Started encrypting ...')
+        digest, iv = Cipher(key).encrypt(self.message)
+        self.message = digest.decode("latin-1")
+        self.iv = iv
+        self.settings.isEncrypted = True
+        print('Encrypted message:', self.message)
+        return self
 
-    def encodeImage(self, message: string, fileName: string):
-        print(self.settings.isEncrypted)
-        if self.settings.isEncrypted == True:
-            digest, iv = Cipher("asd").encrypt(message)
-            message = digest.decode("latin-1")
-            print("encoded message", message)
-
-        encoded = textToBinary(message)
-        print("Started encoding")
-        print("encoded text: {}".format(encoded))
+    def encodeImage(self, fileName: string):
+        print('Started encoding ...')
+        encoded = textToBinary(self.message)
+        print("encoded message:", encoded)
         editedPixels = self.pixels.copy()
+        finished = False
         for h in range(editedPixels.__len__()):
             for w in range(editedPixels[h].__len__()):
                 if h == 0 and w == 0:
@@ -98,41 +106,53 @@ class File():
                         1 if self.settings.otherSetting else 0,
                         1 if self.settings.otherSetting2 else 0
                     ).serialize()
+                    continue
 
-                    continue
-                if len(encoded) > 0:
-                    encodedR = int(encoded[0])
-                    
-                else:
+                if finished:
                     editedPixels[h][w] = editedPixels[h][w].setLastBits(0,0,0).serialize()
-                    encoded = encoded[1:]
                     continue
+
+                if len(encoded) > 2:
+                    encodedR = int(encoded[0])
+                    encoded = encoded[1:]
+                else:
+                    encodedR = 0
 
                 if len(encoded) > 1:
-                    encodedG = int(encoded[1])
+                    encodedG = int(encoded[0])
+                    encoded = encoded[1:]
                 else:
-                    editedPixels[h][w] = editedPixels[h][w].setLastBits(encodedR,1,0).serialize()
-                    encoded = encoded[2:]
-                    continue
-                if len(encoded) > 2:
-                    encodedB = int(encoded[2])
+                    encodedG = 0
+
+
+                if len(encoded) > 0:
+                    encodedB = int(encoded[0])
+                    encoded = encoded[1:]
+                    
                 else:
-                    editedPixels[h][w] = editedPixels[h][w].setLastBits(encodedR,encodedG,1).serialize()
-                    encoded = ""
+                    encodedB = 0
+                    finished = True
+                    editedPixels[h][w] = editedPixels[h][w].setLastBits(1,0,0).serialize()
                     continue
+                
                 editedPixels[h][w] = editedPixels[h][w].setLastBits(encodedR,encodedG,encodedB).serialize()
-                encoded = encoded[3:]
 
         img = Image.fromarray(np.array(editedPixels, dtype=np.uint8))
         img.save("{}.png".format(fileName))
         print("Finished encoding")
         print("Saved image in {0}/{1}.png".format(os.getcwd(), fileName))
 
+    def decryptMessage(self, key):
+        print('Started decrypting ...')
+        self.message = Cipher(key).decrypt(self.message.encode("latin-1"), b"SuperSecretIV123")
+        print('Decrypted message:', self.message)
+        return self
+
     def decodeImage(self):
         binString = ""
         editedPixels = self.pixels.copy()
         stop = False
-        print('Started decoding')
+        print('Started decoding ...')
         for h in range(editedPixels.__len__()):
             for w in range(editedPixels[h].__len__()):
                 if stop:
@@ -145,13 +165,10 @@ class File():
                     stop = True
                     binString = binString[:len(binString) - 15]
 
-
         decodedText = binaryToText(binString) 
-        print("encoded text: {}".format(binString))
-        if self.settings.isEncrypted == True:
-            decodedText = Cipher("asd").decrypt(decodedText.encode("latin-1"), b"SuperSecretIV123")
-
-        print("Decoded text:", decodedText),
+        self.message = decodedText
+        print('Decoded message:', self.message)
+        return self
 
 
 # left unused for future purposes
