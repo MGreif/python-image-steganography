@@ -1,3 +1,9 @@
+# Requirements for Python3
+
+- Install PyCryptodome `pip3 intall PyCryptodome`
+- Install pillow `pip3 intall pillow` or Install PIL `pip3 intall PIL`
+
+
 # Instruction
 ## Encode
 
