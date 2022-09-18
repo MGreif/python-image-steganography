@@ -19,8 +19,8 @@ class Settings():
 
     def fromPixel(pixel: Pixel):
         bitmap = pixel.getLastBits()
-        isEncrypted = bitmap[0] == 1
-        otherSetting = bitmap[1] == 1
-        otherSetting2 = bitmap[2] == 1
+        isEncrypted = bitmap[0] == "1"
+        otherSetting = bitmap[1] == "1"
+        otherSetting2 = bitmap[2] == "1"
         return Settings(isEncrypted, otherSetting, otherSetting2)
     
