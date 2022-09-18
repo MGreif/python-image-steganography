@@ -66,6 +66,7 @@ Decrypted message: This is an encrypted secret message!!
 - [x] Add Pixel (First or Last) designated for meta infos bitmap
 - [x] Add AES Encryption Method
 - [x] Add option to check if image is encrypted
+- Generate new IV in each encryption and store in image
 - Add option to check if image is encoded
 - Add verbose mode
 - Add GUI
