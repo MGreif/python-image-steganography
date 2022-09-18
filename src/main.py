@@ -43,7 +43,7 @@ def main():
     elif action == "decode":
         file = file.decodeImage()
         if file.settings.isEncrypted:
-            print("The text seems to be decrypted ...")
+            print("The text seems to be encrypted ...")
             key = input("Input the keyphrase for decryption: ")
             file = file.decryptMessage(key)
 
