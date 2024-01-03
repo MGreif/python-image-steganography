@@ -59,8 +59,9 @@ class FileManager:
 
         img = Image.fromarray(np.array(editedPixels, dtype=np.uint8))
         img.save("{}.png".format(filename))
+
         print("Finished encoding")
-        print("Saved image in {0}/{1}.png".format(os.getcwd(), filename))
+        print("Saved image to {0}/{1}.png".format(os.getcwd(), filename))
 
     def get_binary_string(self):
         binString = ""

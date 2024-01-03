@@ -16,23 +16,17 @@ class Encoder():
     
     def encode_file_with_message(self, message: str):
         encoded_message = binaryHelper.textToBinary(message=message)
-
-        
-
         message_bit_length = len(encoded_message)
-
 
         if (message_bit_length > len(self.file.binary_string)):
             raise "The specified data is too large. Please increase the image size or use another one ..."
 
-
         message_byte_length = math.ceil(message_bit_length / 8)
-
         message_byte_length_binary = bin(message_byte_length)[2:]
 
+        print("Encoded message:", encoded_message)
+
         header_binary = self.header.to_binary_string(message_byte_length_binary)
-
-
         self.file.write_and_save(header_binary+encoded_message, self.file.fileName+".encoded")
 
 
@@ -49,18 +43,12 @@ class Decoder():
         return self.header
     
     def decode(self):
-        print("Header length:", self.header.header_length)
-        print("Version:", self.header.version)
-        print("content length:", self.header.content_length)
-        print("Flags:", self.header.flags.to_binary_string())
-        print("Full package payload:", self.file.binary_string.rstrip("0"))
+        self.header.debug()
 
         header_length: int = self.header.header_length
         content_binary_string = self.file.binary_string
         content_binary_string = content_binary_string[header_length*8:]
         content_binary_string = content_binary_string[:self.header.content_length*8]
-
-        print("content: ", content_binary_string.rstrip("0"))
         
         content_string = binaryHelper.binaryToText(content_binary_string)
         return content_string

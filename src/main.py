@@ -33,7 +33,7 @@ def main():
         action = input("Encode or Decode an encoded image (encode | decode): ")
 
     if action == "encode":
-        text = input("Input the text to encode into the picture: ")
+        text = input("Input the text to encode into the image: ")
         encrypt = ""
 
         header = Header(False)
@@ -47,6 +47,7 @@ def main():
             (text, _) = cipher.encrypt(message=text)
             text: bytes = text
             text: str = text.decode("latin-1")
+            print("Encrypted message:", text)
             header.flags.encrypted = True
 
         encoder = Encoder(file=file, header=header)

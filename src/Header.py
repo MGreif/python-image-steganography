@@ -15,6 +15,10 @@ class Flags:
     def to_binary_string(self):
         b = bin((0*(2^7)) + (0*(2^6)) + (0*(2^5)) + (0*(2^4)) + (0*(2^3)) + (0*(2^2)) + (0*(2^1)) + (int(self.encrypted == True)*(1^0)))[2:]
         return binaryHelper.binary_padding_to_full_byte(b)
+    
+    def debug(self):
+        print("Flag byte:", self.to_binary_string())
+        print("- Encryption flag:", self.encrypted)
 
 # Header Length: 1 byte
 # Version: 1 byte
@@ -66,8 +70,14 @@ class Header():
         binary_string += binaryHelper.binary_padding_to_full_byte(bin(self.version)[2:])
         binary_string += binaryHelper.binary_padding_to_full_byte(self.flags.to_binary_string())
         binary_string += binaryHelper.binary_padding_to_full_byte(content_length_binary_string, 4*8)
-        
         return binary_string
+    
+    def debug(self):
+        print("Version:", self.version)
+        print("Header length:", self.header_length)
+        print("Content length:", self.content_length)
+        self.flags.debug()
+
     
 
 
