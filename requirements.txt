@@ -1,2 +1,4 @@
 PyCryptodome==3.19.1
 Pillow==10.0.0
+bitarray==2.9.2
+bitstring==4.1.4

@@ -5,25 +5,21 @@ from Crypto import Random
 from Crypto.Cipher import AES
 
 class Cipher():
+    iv = b"SuperSecretIV123" #Random.new().read(AES.block_size)\
     def __init__(self, key):
-        self.key = hashlib.sha256(key.encode()).digest()
+        self.key = hashlib.sha256(key.encode("latin-1")).digest()
         self.bs = AES.block_size
         
-    def encrypt(self, message: str):
+    def encrypt(self, message: str) -> (bytes, bytes):
         encoded = self._pad(message).encode("latin-1")
-        iv = b"SuperSecretIV123" #Random.new().read(AES.block_size)
-        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
         digest = cipher.encrypt(encoded)
-        return (digest, iv)
+        return (digest, self.iv)
 
-    def decrypt2(self, digest):
-        enc = base64.b64decode(digest)
-        iv = enc[:AES.block_size]
-        cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        return self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
 
-    def decrypt(self, digest, iv):
-        newCipher = AES.new(self.key, AES.MODE_CBC, iv)
+
+    def decrypt(self, digest):
+        newCipher = AES.new(self.key, AES.MODE_CBC, self.iv)
         decrypted = newCipher.decrypt(digest)
         return Cipher._unpad(decrypted.decode("latin-1"))
 

@@ -1,7 +1,12 @@
 import sys
 import re
-from File import File
+from Bundler import Encoder, Decoder
+from Header import Header
+from FileManager import FileManager
+from Cipher import Cipher
 import os
+
+
 
 
 def main():
@@ -18,10 +23,12 @@ def main():
         exit()
 
     try:
-        file = File(filePath)
+        file = FileManager(filePath)
     except FileNotFoundError:
         print("File {} not found".format(filePath))
         exit()
+
+
 
     action = ""
     while re.search("encode|decode", action) == None:
@@ -29,20 +36,34 @@ def main():
 
     if action == "encode":
         text = input("Input the text to encode into the picture: ")
-        file.setMessage(text)
         encrypt = ""
+
+        header = Header(False)
+
         while re.search("y|n", encrypt) == None:
             encrypt = input("Do you wish to encrypt the message? (y | n): ")
         if (encrypt == "y"):
             encryptionKey = input("Specify the encryption key: ")
-            file = file.encryptMessage(encryptionKey)
-        file = file.encodeImage("{}.encoded".format(fileName))
+            cipher = Cipher(key=encryptionKey)
+            (text, _) = cipher.encrypt(message=text)
+            text: bytes = text
+            text: str = text.decode("latin-1")
+            header.flags.encrypted = True
+
+        encoder = Encoder(file=file, header=header)
+
+        encoder.encode_file_with_message(message=text)
 
     elif action == "decode":
-        file = file.decodeImage()
-        if file.settings.isEncrypted:
+        decoder = Decoder(file=file)
+        decoded_text = decoder.decode()
+        print("Decoded message:", decoded_text)
+
+        if decoder.header.flags.encrypted == True:
             print("The text seems to be encrypted ...")
             key = input("Input the keyphrase for decryption: ")
-            file = file.decryptMessage(key)
+            cipher = Cipher(key=key)
+            decrypted = cipher.decrypt(decoded_text.encode("latin-1"))
+            print("Decrypted message:", decrypted)
 
 main()
