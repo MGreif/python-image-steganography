@@ -7,8 +7,6 @@ from Cipher import Cipher
 import os
 
 
-
-
 def main():
     try:
         filePath = sys.argv[1]
@@ -42,6 +40,7 @@ def main():
 
         while re.search("y|n", encrypt) == None:
             encrypt = input("Do you wish to encrypt the message? (y | n): ")
+            
         if (encrypt == "y"):
             encryptionKey = input("Specify the encryption key: ")
             cipher = Cipher(key=encryptionKey)
