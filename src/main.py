@@ -2,13 +2,14 @@ from pydoc import doc
 import sys
 import re
 from File import File
+import os
 
 
 def main():
 
     try:
         filePath = sys.argv[1]
-        fileName = filePath.split(".")[0]
+        fileName = os.path.basename(filePath).split(".")[0]
         fileExtension = filePath.split(".")[-1]
 
     except IndexError:
