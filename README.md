@@ -81,12 +81,14 @@ Decrypted message: This is an encrypted secret message!!
 
 # Can you decode this?
 
-![Python](python.png)
+![Python](try-me.png)
 
 # TODO
 - [x] Add Pixel (First or Last) designated for meta infos bitmap
 - [x] Add AES Encryption Method
 - [x] Add option to check if image is encrypted
+- [] Add `inspect` option - to inspect if the image contains a message and disclose header details
+- [] Add method to hide and extract files
 - Generate new IV in each encryption and store in image
 - Add verbose mode
 - Add GUI
