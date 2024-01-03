@@ -4,13 +4,17 @@ This tool performs technical steganography to create an image (PNG) stego-object
 
 The steganography will only work on `PNG` as of the current state.
 
-
 # Requirements for Python3
 
 `pip3 install -r requirements.txt`
 
 
-# Instruction
+
+# Development
+
+- `make test` - To run basic integration tests that check correct en-/decoding and en-/decryption
+
+# Usage
 ## Encode
 
 This program can be used to modify a PNG picture to contain a hidden message.
