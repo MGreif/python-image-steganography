@@ -1,3 +1,10 @@
+# About
+
+This tool performs technical steganography to create an image (PNG) stego-object. It uses the LSB (Least-Significant-Bit) substitution technique to hide a message inside a picture. This message can also be encrypted using the symmetrical `AES256` algorithm.
+
+The steganography will only work on `PNG` as of the current state.
+
+
 # Requirements for Python3
 
 `pip3 install -r requirements.txt`

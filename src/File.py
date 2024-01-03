@@ -8,7 +8,7 @@ from Settings import Settings
 import os
 
 def BinaryToDecimal(binary):
-    decimal, i, n = 0, 0, 0
+    decimal, i = 0, 0, 0
     while binary != 0:
         dec = binary % 10
         decimal = decimal + dec * pow(2, i)
